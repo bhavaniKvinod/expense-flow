@@ -1,0 +1,19 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:expenseflow;DB_CLOSE_DELAY=-1;MODE=PostgreSQL
+    username: sa
+    password: ""
+    driver-class-name: org.h2.Driver
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    database-platform: org.hibernate.dialect.H2Dialect
+  flyway:
+    enabled: false
+
+expenseflow:
+  jwt:
+    secret: Y2hhbmdlLW1lLXRoaXMtaXMtYS1kZW1vLXNlY3JldC1rZXktMzIhIQ==
+    expiration-minutes: 60
+  cors:
+    allowed-origins: http://localhost:5173

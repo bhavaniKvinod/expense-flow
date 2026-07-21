@@ -1,0 +1,3 @@
+ALTER TABLE expense_line_items ADD COLUMN currency VARCHAR(10) NOT NULL DEFAULT 'USD';
+
+ALTER TABLE policy_config ADD COLUMN usd_to_inr_rate NUMERIC(12, 4) NOT NULL DEFAULT 83.0000;

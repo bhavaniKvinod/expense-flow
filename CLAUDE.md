@@ -11,6 +11,7 @@ Stack: Spring Boot 3.3 (Java 17) + PostgreSQL + Flyway on the backend; React 18 
 ## Commands
 
 ### Backend (from `backend/`)
+- No Maven wrapper is checked in — despite the `./mvnw ...` commands below, there is no `mvnw` script in `backend/`. Use a system Maven (`mvn ...`) instead, or generate the wrapper once with `mvn wrapper:wrapper`. Requires Maven 3.9+ and Java 17.
 - Start Postgres first: `docker-compose up -d` (from repo root) — runs on port 5432, db/user/pass all `expenseflow`. Note the app's `application.yml` actually points at db `ems`, not `expenseflow` from docker-compose — reconcile before running against a fresh container.
 - Run the app: `./mvnw spring-boot:run` (serves on port **8085**)
 - Run all tests: `./mvnw test`

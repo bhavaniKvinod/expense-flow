@@ -21,6 +21,10 @@ public final class CurrencyConverter {
         if (currency == Currency.USD) {
             return amount;
         }
+        if (usdToInrRate == null || usdToInrRate.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalStateException(
+                    "Cannot convert " + currency + " to USD: usdToInrRate must be a positive value, was " + usdToInrRate);
+        }
         return amount.divide(usdToInrRate, 2, RoundingMode.HALF_UP);
     }
 }

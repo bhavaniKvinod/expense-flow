@@ -2,17 +2,20 @@ package com.expenseflow.service;
 
 import com.expenseflow.domain.AuditAction;
 import com.expenseflow.domain.ExpenseStatus;
+import com.expenseflow.dto.ExpenseDtos.ReportSummary;
 import com.expenseflow.entity.ExpenseReport;
 import com.expenseflow.entity.Reimbursement;
 import com.expenseflow.entity.User;
 import com.expenseflow.exception.BadRequestException;
+import com.expenseflow.mapper.Mappers;
 import com.expenseflow.repository.ExpenseReportRepository;
 import com.expenseflow.repository.ReimbursementRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
-import java.util.List;
 
 @Service
 public class ReimbursementService {
@@ -34,8 +37,8 @@ public class ReimbursementService {
 
     /** Approved reports awaiting payment. */
     @Transactional(readOnly = true)
-    public List<ExpenseReport> queue() {
-        return reportRepository.findByStatusOrderBySubmittedAtAsc(ExpenseStatus.APPROVED);
+    public Page<ReportSummary> queue(Pageable pageable) {
+        return reportRepository.findSummariesByStatus(ExpenseStatus.APPROVED, pageable).map(Mappers::toReportSummary);
     }
 
     /**

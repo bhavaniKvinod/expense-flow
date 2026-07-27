@@ -1,13 +1,13 @@
 package com.expenseflow.controller;
 
 import com.expenseflow.dto.ExpenseDtos;
+import com.expenseflow.dto.PageResponse;
 import com.expenseflow.mapper.Mappers;
 import com.expenseflow.security.CurrentUserProvider;
 import com.expenseflow.service.ReimbursementService;
+import com.expenseflow.web.PagingSupport;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api")
@@ -23,8 +23,9 @@ public class ReimbursementController {
     }
 
     @GetMapping("/reimbursements")
-    public List<ExpenseDtos.ReportSummary> queue() {
-        return reimbursementService.queue().stream().map(Mappers::toReportSummary).toList();
+    public PageResponse<ExpenseDtos.ReportSummary> queue(@RequestParam(required = false) Integer page,
+                                                          @RequestParam(required = false) Integer size) {
+        return PageResponse.from(reimbursementService.queue(PagingSupport.of(page, size)));
     }
 
     @PostMapping("/reports/{id}/reimburse")

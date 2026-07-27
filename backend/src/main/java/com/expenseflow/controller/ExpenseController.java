@@ -1,6 +1,7 @@
 package com.expenseflow.controller;
 
 import com.expenseflow.dto.ExpenseDtos;
+import com.expenseflow.dto.PageResponse;
 import com.expenseflow.entity.ExpenseReport;
 import com.expenseflow.entity.User;
 import com.expenseflow.mapper.Mappers;
@@ -8,6 +9,7 @@ import com.expenseflow.policy.PolicyViolation;
 import com.expenseflow.security.CurrentUserProvider;
 import com.expenseflow.service.AuditService;
 import com.expenseflow.service.ExpenseReportService;
+import com.expenseflow.web.PagingSupport;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -32,9 +34,10 @@ public class ExpenseController {
     // ---- Reports ----
 
     @GetMapping("/api/reports")
-    public List<ExpenseDtos.ReportSummary> myReports() {
+    public PageResponse<ExpenseDtos.ReportSummary> myReports(@RequestParam(required = false) Integer page,
+                                                              @RequestParam(required = false) Integer size) {
         User me = currentUser.require();
-        return reportService.listMine(me).stream().map(Mappers::toReportSummary).toList();
+        return PageResponse.from(reportService.listMine(me, PagingSupport.of(page, size)));
     }
 
     @PostMapping("/api/reports")

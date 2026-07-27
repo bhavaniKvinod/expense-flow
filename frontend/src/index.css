@@ -119,6 +119,9 @@ input:focus, select:focus, textarea:focus { outline: 2px solid rgba(59, 91, 219,
 .right { text-align: right; }
 .nowrap { white-space: nowrap; }
 
+.pagination { display: flex; align-items: center; justify-content: center; gap: 14px; padding-top: 16px; }
+.pagination-status { color: var(--muted); font-size: 13px; }
+
 /* Timeline */
 .timeline { list-style: none; margin: 0; padding: 0; }
 .timeline li { padding: 8px 0 8px 18px; border-left: 2px solid var(--border); position: relative; }

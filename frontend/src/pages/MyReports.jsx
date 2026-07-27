@@ -1,23 +1,29 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import client, { errorMessage } from '../api/client'
+import Pagination from '../components/Pagination'
 import StatusBadge from '../components/StatusBadge'
 import { money, dateTime } from '../util/format'
 
 export default function MyReports() {
   const navigate = useNavigate()
   const [reports, setReports] = useState(null)
+  const [pageInfo, setPageInfo] = useState(null)
+  const [page, setPage] = useState(0)
   const [error, setError] = useState(null)
   const [creating, setCreating] = useState(false)
 
   function load() {
     client
-      .get('/reports')
-      .then((res) => setReports(res.data))
+      .get('/reports', { params: { page } })
+      .then((res) => {
+        setReports(res.data.content)
+        setPageInfo(res.data)
+      })
       .catch((err) => setError(errorMessage(err)))
   }
 
-  useEffect(load, [])
+  useEffect(load, [page])
 
   async function createReport() {
     setCreating(true)
@@ -82,6 +88,7 @@ export default function MyReports() {
             </tbody>
           </table>
         )}
+        <Pagination pageInfo={pageInfo} onPageChange={setPage} />
       </div>
     </div>
   )

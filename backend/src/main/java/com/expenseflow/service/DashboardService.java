@@ -5,8 +5,12 @@ import com.expenseflow.domain.Role;
 import com.expenseflow.dto.DashboardDtos;
 import com.expenseflow.entity.User;
 import com.expenseflow.repository.ExpenseReportRepository;
+import com.expenseflow.repository.StatusCount;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class DashboardService {
@@ -30,12 +34,16 @@ public class DashboardService {
             awaitingApproval = reportRepository.countByEmployeeManagerIdAndStatus(id, ExpenseStatus.SUBMITTED);
         }
 
+        // Single GROUP BY query instead of one countByEmployeeIdAndStatus round trip per status.
+        Map<ExpenseStatus, Long> mine = reportRepository.countGroupedByStatusForEmployee(id).stream()
+                .collect(Collectors.toMap(StatusCount::getStatus, StatusCount::getCount));
+
         return new DashboardDtos.DashboardResponse(
-                reportRepository.countByEmployeeIdAndStatus(id, ExpenseStatus.DRAFT),
-                reportRepository.countByEmployeeIdAndStatus(id, ExpenseStatus.SUBMITTED),
-                reportRepository.countByEmployeeIdAndStatus(id, ExpenseStatus.APPROVED),
-                reportRepository.countByEmployeeIdAndStatus(id, ExpenseStatus.REJECTED),
-                reportRepository.countByEmployeeIdAndStatus(id, ExpenseStatus.REIMBURSED),
+                mine.getOrDefault(ExpenseStatus.DRAFT, 0L),
+                mine.getOrDefault(ExpenseStatus.SUBMITTED, 0L),
+                mine.getOrDefault(ExpenseStatus.APPROVED, 0L),
+                mine.getOrDefault(ExpenseStatus.REJECTED, 0L),
+                mine.getOrDefault(ExpenseStatus.REIMBURSED, 0L),
                 awaitingApproval,
                 awaitingReimbursement);
     }

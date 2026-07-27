@@ -3,16 +3,20 @@ package com.expenseflow.service;
 import com.expenseflow.domain.AuditAction;
 import com.expenseflow.domain.ExpenseStatus;
 import com.expenseflow.domain.Role;
+import com.expenseflow.dto.ExpenseDtos.ReportSummary;
 import com.expenseflow.entity.ExpenseReport;
 import com.expenseflow.entity.User;
 import com.expenseflow.exception.BadRequestException;
 import com.expenseflow.exception.ForbiddenException;
+import com.expenseflow.mapper.Mappers;
 import com.expenseflow.repository.ExpenseReportRepository;
+import com.expenseflow.repository.ReportSummaryView;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
-import java.util.List;
 
 @Service
 public class ApprovalService {
@@ -31,12 +35,11 @@ public class ApprovalService {
 
     /** Reports awaiting this manager's decision (submitted by their direct reports). Admin sees all submitted. */
     @Transactional(readOnly = true)
-    public List<ExpenseReport> queue(User me) {
-        if (me.getRole() == Role.ADMIN) {
-            return reportRepository.findByStatusOrderBySubmittedAtAsc(ExpenseStatus.SUBMITTED);
-        }
-        return reportRepository.findByEmployeeManagerIdAndStatusOrderBySubmittedAtAsc(
-                me.getId(), ExpenseStatus.SUBMITTED);
+    public Page<ReportSummary> queue(User me, Pageable pageable) {
+        Page<ReportSummaryView> page = me.getRole() == Role.ADMIN
+                ? reportRepository.findSummariesByStatus(ExpenseStatus.SUBMITTED, pageable)
+                : reportRepository.findSummariesByManagerIdAndStatus(me.getId(), ExpenseStatus.SUBMITTED, pageable);
+        return page.map(Mappers::toReportSummary);
     }
 
     @Transactional

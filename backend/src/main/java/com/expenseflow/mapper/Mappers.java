@@ -3,6 +3,7 @@ package com.expenseflow.mapper;
 import com.expenseflow.dto.ExpenseDtos;
 import com.expenseflow.dto.UserDtos;
 import com.expenseflow.entity.*;
+import com.expenseflow.repository.ReportSummaryView;
 
 /**
  * Central entity -> DTO conversion helpers. Pure functions, no persistence side effects.
@@ -58,16 +59,16 @@ public final class Mappers {
                         .toList());
     }
 
-    public static ExpenseDtos.ReportSummary toReportSummary(ExpenseReport r) {
+    public static ExpenseDtos.ReportSummary toReportSummary(ReportSummaryView v) {
         return new ExpenseDtos.ReportSummary(
-                r.getId(),
-                r.getEmployee().getName(),
-                r.getTitle(),
-                r.getStatus(),
-                r.getTotalAmount(),
-                r.getSubmittedAt(),
-                r.getCreatedAt(),
-                r.getLineItems().size());
+                v.getId(),
+                v.getEmployeeName(),
+                v.getTitle(),
+                v.getStatus(),
+                v.getTotalAmount(),
+                v.getSubmittedAt(),
+                v.getCreatedAt(),
+                v.getLineItemCount());
     }
 
     public static ExpenseDtos.AuditEventResponse toAuditResponse(AuditEvent e) {

@@ -5,8 +5,9 @@
       "Bash(git checkout *)",
       "Bash(git push *)",
       "Bash(git ls-remote *)"
-    ]
-  },
+    ],
+    "deny": []
+  },  
   "hooks": {
     "PostToolUse": [
       {

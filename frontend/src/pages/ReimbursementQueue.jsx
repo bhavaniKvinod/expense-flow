@@ -1,21 +1,27 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import client, { errorMessage } from '../api/client'
+import Pagination from '../components/Pagination'
 import { money, dateTime } from '../util/format'
 
 export default function ReimbursementQueue() {
   const [reports, setReports] = useState(null)
+  const [pageInfo, setPageInfo] = useState(null)
+  const [page, setPage] = useState(0)
   const [error, setError] = useState(null)
   const [busyId, setBusyId] = useState(null)
 
   function load() {
     client
-      .get('/reimbursements')
-      .then((res) => setReports(res.data))
+      .get('/reimbursements', { params: { page } })
+      .then((res) => {
+        setReports(res.data.content)
+        setPageInfo(res.data)
+      })
       .catch((err) => setError(errorMessage(err)))
   }
 
-  useEffect(load, [])
+  useEffect(load, [page])
 
   async function reimburse(id) {
     const ref = window.prompt('Payment reference (optional):', '')
@@ -76,6 +82,7 @@ export default function ReimbursementQueue() {
             </tbody>
           </table>
         )}
+        <Pagination pageInfo={pageInfo} onPageChange={setPage} />
       </div>
     </div>
   )

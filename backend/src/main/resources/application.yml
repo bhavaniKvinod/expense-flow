@@ -13,6 +13,9 @@ spring:
     properties:
       hibernate:
         format_sql: false
+        # Any lazy association still touched one-row-at-a-time (e.g. mapping a single
+        # mutated report back to a ReportResponse) loads in batches instead of N+1 queries.
+        default_batch_fetch_size: 25
   flyway:
     enabled: true
     baseline-on-migrate: true

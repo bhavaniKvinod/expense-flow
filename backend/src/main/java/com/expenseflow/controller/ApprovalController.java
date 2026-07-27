@@ -1,14 +1,14 @@
 package com.expenseflow.controller;
 
 import com.expenseflow.dto.ExpenseDtos;
+import com.expenseflow.dto.PageResponse;
 import com.expenseflow.mapper.Mappers;
 import com.expenseflow.security.CurrentUserProvider;
 import com.expenseflow.service.ApprovalService;
+import com.expenseflow.web.PagingSupport;
 import jakarta.validation.Valid;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api")
@@ -24,9 +24,9 @@ public class ApprovalController {
     }
 
     @GetMapping("/approvals")
-    public List<ExpenseDtos.ReportSummary> queue() {
-        return approvalService.queue(currentUser.require()).stream()
-                .map(Mappers::toReportSummary).toList();
+    public PageResponse<ExpenseDtos.ReportSummary> queue(@RequestParam(required = false) Integer page,
+                                                          @RequestParam(required = false) Integer size) {
+        return PageResponse.from(approvalService.queue(currentUser.require(), PagingSupport.of(page, size)));
     }
 
     @PostMapping("/reports/{id}/approve")

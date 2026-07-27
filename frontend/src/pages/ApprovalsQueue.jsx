@@ -1,19 +1,25 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import client, { errorMessage } from '../api/client'
+import Pagination from '../components/Pagination'
 import StatusBadge from '../components/StatusBadge'
 import { money, dateTime } from '../util/format'
 
 export default function ApprovalsQueue() {
   const [reports, setReports] = useState(null)
+  const [pageInfo, setPageInfo] = useState(null)
+  const [page, setPage] = useState(0)
   const [error, setError] = useState(null)
 
   useEffect(() => {
     client
-      .get('/approvals')
-      .then((res) => setReports(res.data))
+      .get('/approvals', { params: { page } })
+      .then((res) => {
+        setReports(res.data.content)
+        setPageInfo(res.data)
+      })
       .catch((err) => setError(errorMessage(err)))
-  }, [])
+  }, [page])
 
   return (
     <div>
@@ -57,6 +63,7 @@ export default function ApprovalsQueue() {
             </tbody>
           </table>
         )}
+        <Pagination pageInfo={pageInfo} onPageChange={setPage} />
       </div>
     </div>
   )

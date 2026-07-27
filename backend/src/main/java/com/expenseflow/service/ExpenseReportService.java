@@ -11,8 +11,12 @@ import com.expenseflow.exception.NotFoundException;
 import com.expenseflow.exception.PolicyViolationException;
 import com.expenseflow.policy.PolicyEngine;
 import com.expenseflow.policy.PolicyViolation;
+import com.expenseflow.dto.ExpenseDtos.ReportSummary;
+import com.expenseflow.mapper.Mappers;
 import com.expenseflow.repository.ExpenseLineItemRepository;
 import com.expenseflow.repository.ExpenseReportRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -43,13 +47,13 @@ public class ExpenseReportService {
     // ---- Reads ----
 
     @Transactional(readOnly = true)
-    public List<ExpenseReport> listMine(User me) {
-        return reportRepository.findByEmployeeIdOrderByCreatedAtDesc(me.getId());
+    public Page<ReportSummary> listMine(User me, Pageable pageable) {
+        return reportRepository.findSummariesByEmployeeId(me.getId(), pageable).map(Mappers::toReportSummary);
     }
 
     @Transactional(readOnly = true)
     public ExpenseReport getForViewing(Long reportId, User me) {
-        ExpenseReport report = findById(reportId);
+        ExpenseReport report = findWithDetails(reportId);
         assertCanView(report, me);
         return report;
     }
@@ -211,6 +215,11 @@ public class ExpenseReportService {
 
     public ExpenseReport findById(Long reportId) {
         return reportRepository.findById(reportId)
+                .orElseThrow(() -> new NotFoundException("Report " + reportId + " not found"));
+    }
+
+    private ExpenseReport findWithDetails(Long reportId) {
+        return reportRepository.findWithDetailsById(reportId)
                 .orElseThrow(() -> new NotFoundException("Report " + reportId + " not found"));
     }
 

@@ -23,5 +23,6 @@ export const STATUS_LABELS = {
 }
 
 export const CATEGORIES = ['TRAVEL', 'MEALS', 'SOFTWARE', 'TRAINING', 'OTHER']
+
 export const ROLES = ['EMPLOYEE', 'MANAGER', 'ADMIN']
 export const CURRENCIES = ['USD', 'INR']

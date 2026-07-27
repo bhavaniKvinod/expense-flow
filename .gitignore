@@ -33,3 +33,4 @@ Thumbs.db
 
 # ---- Claude Code (personal) ----
 .claude/notify_sound.py
+.claude/logs/

@@ -1,0 +1,81 @@
+
+name: Tests
+
+# Runs on every pull request (opened, new commits pushed, or reopened).
+# Both jobs must pass for the PR check to be green — configure branch
+# protection on the default branch to require these checks before merging.
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+# Cancel superseded runs when new commits are pushed to the same PR.
+concurrency:
+  group: tests-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend:
+    name: Backend tests (mvn test)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+
+      # Tests run against H2 in-memory (application-test.yml), so no Postgres
+      # is required here. Fails the job — and the PR check — on any test failure.
+      - name: Run tests
+        run: mvn -B test
+
+      - name: Upload test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-surefire-reports
+          path: backend/target/surefire-reports/
+          if-no-files-found: ignore
+
+  frontend:
+    name: Frontend tests (npm test)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      # The frontend has no `test` script yet. Run it only when one is defined
+      # so the check doesn't hard-fail on a missing script; when tests are added
+      # they will run and block the PR automatically.
+      - name: Run tests
+        run: |
+          if npm run | grep -qE '^  test$'; then
+            npm test
+          else
+            echo "No 'test' script defined in package.json — skipping."
+          fi
+
+      # Build acts as the real gate today: it fails the job (and the PR check)
+      # if the frontend doesn't compile.
+      - name: Build
+        run: npm run build

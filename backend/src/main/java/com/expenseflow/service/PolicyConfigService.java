@@ -41,6 +41,7 @@ public class PolicyConfigService {
         config.setMaxExpenseAgeDays(request.maxExpenseAgeDays());
         config.setUsdToInrRate(request.usdToInrRate());
         config.setUsdToEurRate(request.usdToEurRate());
+        config.setUsdToAedRate(request.usdToAedRate());
         return repository.save(config);
     }
 

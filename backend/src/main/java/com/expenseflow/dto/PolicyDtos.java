@@ -13,7 +13,8 @@ public class PolicyDtos {
             BigDecimal totalReportCap,
             int maxExpenseAgeDays,
             BigDecimal usdToInrRate,
-            BigDecimal usdToEurRate) {
+            BigDecimal usdToEurRate,
+            BigDecimal usdToAedRate) {
     }
 
     public record UpdatePolicyRequest(
@@ -21,6 +22,7 @@ public class PolicyDtos {
             @NotNull @PositiveOrZero BigDecimal totalReportCap,
             @Min(1) int maxExpenseAgeDays,
             @NotNull @PositiveOrZero BigDecimal usdToInrRate,
-            @NotNull @PositiveOrZero BigDecimal usdToEurRate) {
+            @NotNull @PositiveOrZero BigDecimal usdToEurRate,
+            @NotNull @PositiveOrZero BigDecimal usdToAedRate) {
     }
 }

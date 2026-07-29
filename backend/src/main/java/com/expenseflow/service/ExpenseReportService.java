@@ -211,7 +211,7 @@ public class ExpenseReportService {
 
     private void recomputeTotal(ExpenseReport report) {
         PolicyConfig config = policyConfigService.get();
-        report.recomputeTotal(config.getUsdToInrRate(), config.getUsdToEurRate());
+        report.recomputeTotal(config.getUsdToInrRate(), config.getUsdToEurRate(), config.getUsdToAedRate());
     }
 
     public ExpenseReport findById(Long reportId) {

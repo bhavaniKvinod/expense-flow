@@ -62,7 +62,8 @@ public class PolicyEngine {
 
     private void checkReceipt(ExpenseLineItem item, PolicyConfig config, List<PolicyViolation> violations) {
         BigDecimal usdAmount = CurrencyConverter.toUsd(
-                item.getAmount(), item.getCurrency(), config.getUsdToInrRate(), config.getUsdToEurRate());
+                item.getAmount(), item.getCurrency(), config.getUsdToInrRate(), config.getUsdToEurRate(),
+                config.getUsdToAedRate());
         if (usdAmount.compareTo(config.getReceiptThreshold()) > 0 && !item.hasReceipt()) {
             violations.add(PolicyViolation.item(RULE_RECEIPT_REQUIRED,
                     String.format("\"%s\" for %s requires a receipt (amounts over %s must be receipted).",
@@ -107,7 +108,7 @@ public class PolicyEngine {
     }
 
     private void checkTotalCap(ExpenseReport report, PolicyConfig config, List<PolicyViolation> violations) {
-        report.recomputeTotal(config.getUsdToInrRate(), config.getUsdToEurRate());
+        report.recomputeTotal(config.getUsdToInrRate(), config.getUsdToEurRate(), config.getUsdToAedRate());
         BigDecimal total = report.getTotalAmount();
         if (total.compareTo(config.getTotalReportCap()) > 0) {
             violations.add(PolicyViolation.report(RULE_TOTAL_CAP,
@@ -118,7 +119,10 @@ public class PolicyEngine {
 
     private String formatMoney(BigDecimal amount, Currency currency) {
         BigDecimal value = amount == null ? BigDecimal.ZERO : amount.setScale(2, java.math.RoundingMode.HALF_UP);
-        String symbol = currency == Currency.INR ? "₹" : currency == Currency.EUR ? "€" : "$";
+        String symbol = currency == Currency.INR ? "₹"
+                : currency == Currency.EUR ? "€"
+                : currency == Currency.AED ? "AED "
+                : "$";
         return symbol + value.toPlainString();
     }
 }

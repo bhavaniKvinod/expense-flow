@@ -31,6 +31,7 @@ class PolicyEngineTest {
         c.setMaxExpenseAgeDays(90);
         c.setUsdToInrRate(new BigDecimal("83.0000"));
         c.setUsdToEurRate(new BigDecimal("0.9200"));
+        c.setUsdToAedRate(new BigDecimal("3.6725"));
         return c;
     }
 
@@ -182,6 +183,33 @@ class PolicyEngineTest {
         ExpenseReport report = reportWith(
                 item(TODAY.minusDays(1), "3000.00", Currency.USD, "Vendor A", true),
                 item(TODAY.minusDays(1), "1841.00", Currency.EUR, "Vendor B", true));
+        assertThat(engine.validate(report, config()))
+                .extracting(PolicyViolation::rule).contains(PolicyEngine.RULE_TOTAL_CAP);
+    }
+
+    @Test
+    void aedItemIsConvertedToUsdForReceiptCheck() {
+        // 3.6725 AED == 1 USD; 100 AED ~= $27.23, over the $25 threshold -> receipt required.
+        ExpenseReport report = reportWith(
+                item(TODAY.minusDays(1), "100.00", Currency.AED, "Dubai Cafe", false));
+        assertThat(engine.validate(report, config()))
+                .extracting(PolicyViolation::rule).contains(PolicyEngine.RULE_RECEIPT_REQUIRED);
+    }
+
+    @Test
+    void aedItemBelowUsdEquivalentThresholdNeedsNoReceipt() {
+        // 80 AED ~= $21.78, under the $25 threshold.
+        ExpenseReport report = reportWith(
+                item(TODAY.minusDays(1), "80.00", Currency.AED, "Dubai Cafe", false));
+        assertThat(engine.validate(report, config())).isEmpty();
+    }
+
+    @Test
+    void mixedAedCurrencyTotalIsConvertedToUsdForCapCheck() {
+        // $3000 USD + 7346 AED (~= $2000.27 USD) => ~$5000.27 total, over the $5000 cap.
+        ExpenseReport report = reportWith(
+                item(TODAY.minusDays(1), "3000.00", Currency.USD, "Vendor A", true),
+                item(TODAY.minusDays(1), "7346.00", Currency.AED, "Vendor B", true));
         assertThat(engine.validate(report, config()))
                 .extracting(PolicyViolation::rule).contains(PolicyEngine.RULE_TOTAL_CAP);
     }

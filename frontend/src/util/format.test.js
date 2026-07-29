@@ -12,6 +12,10 @@ describe('money', () => {
   it('formats EUR amounts', () => {
     expect(money(1234.5, 'EUR')).toBe('€1,234.50')
   })
+
+  it('formats AED amounts', () => {
+    expect(money(1234.5, 'AED')).toBe('AED 1,234.50')
+  })
 })
 
 describe('dateOnly', () => {

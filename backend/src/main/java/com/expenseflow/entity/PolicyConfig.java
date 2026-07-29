@@ -40,6 +40,13 @@ public class PolicyConfig {
     @Column(name = "usd_to_eur_rate", nullable = false, precision = 12, scale = 4)
     private BigDecimal usdToEurRate;
 
+    /**
+     * Fixed conversion rate used to normalise non-USD line items (AED) to USD for
+     * report totals and policy checks. E.g. 3.6725 means 1 USD = 3.6725 AED.
+     */
+    @Column(name = "usd_to_aed_rate", nullable = false, precision = 12, scale = 4)
+    private BigDecimal usdToAedRate;
+
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
@@ -57,4 +64,7 @@ public class PolicyConfig {
 
     public BigDecimal getUsdToEurRate() { return usdToEurRate; }
     public void setUsdToEurRate(BigDecimal usdToEurRate) { this.usdToEurRate = usdToEurRate; }
+
+    public BigDecimal getUsdToAedRate() { return usdToAedRate; }
+    public void setUsdToAedRate(BigDecimal usdToAedRate) { this.usdToAedRate = usdToAedRate; }
 }

@@ -1,0 +1,1 @@
+ALTER TABLE policy_config ADD COLUMN usd_to_aed_rate NUMERIC(12, 4) NOT NULL DEFAULT 3.6725;

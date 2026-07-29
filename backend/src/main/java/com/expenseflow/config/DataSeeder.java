@@ -57,6 +57,7 @@ public class DataSeeder implements CommandLineRunner {
         config.setMaxExpenseAgeDays(90);
         config.setUsdToInrRate(new BigDecimal("83.0000"));
         config.setUsdToEurRate(new BigDecimal("0.9200"));
+        config.setUsdToAedRate(new BigDecimal("3.6725"));
         policyConfigRepository.save(config);
     }
 

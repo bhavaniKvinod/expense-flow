@@ -12,13 +12,15 @@ public class PolicyDtos {
             BigDecimal receiptThreshold,
             BigDecimal totalReportCap,
             int maxExpenseAgeDays,
-            BigDecimal usdToInrRate) {
+            BigDecimal usdToInrRate,
+            BigDecimal usdToEurRate) {
     }
 
     public record UpdatePolicyRequest(
             @NotNull @PositiveOrZero BigDecimal receiptThreshold,
             @NotNull @PositiveOrZero BigDecimal totalReportCap,
             @Min(1) int maxExpenseAgeDays,
-            @NotNull @PositiveOrZero BigDecimal usdToInrRate) {
+            @NotNull @PositiveOrZero BigDecimal usdToInrRate,
+            @NotNull @PositiveOrZero BigDecimal usdToEurRate) {
     }
 }

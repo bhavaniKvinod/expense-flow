@@ -25,6 +25,7 @@ export default function PolicySettings() {
         totalReportCap: policy.totalReportCap,
         maxExpenseAgeDays: Number(policy.maxExpenseAgeDays),
         usdToInrRate: policy.usdToInrRate,
+        usdToEurRate: policy.usdToEurRate,
       })
       setPolicy(data)
       setNotice('Policy updated. New submissions are validated against these values.')
@@ -47,7 +48,7 @@ export default function PolicySettings() {
       {error && <div className="alert alert-error">{error}</div>}
       {notice && <div className="alert alert-success">{notice}</div>}
       <p className="hint" style={{ marginTop: -8, marginBottom: 16 }}>
-        Line items may be entered in USD or INR. Non-USD amounts are converted using the exchange rate
+        Line items may be entered in USD, INR, or EUR. Non-USD amounts are converted using the exchange rates
         below before being checked against the receipt and total-cap thresholds (which are in USD).
       </p>
 
@@ -86,6 +87,14 @@ export default function PolicySettings() {
                 type="number" step="0.0001" min="0" required
                 value={policy.usdToInrRate}
                 onChange={(e) => setPolicy({ ...policy, usdToInrRate: e.target.value })}
+              />
+            </label>
+            <label className="field">
+              <span className="lbl">Exchange rate (1 USD = ? EUR)</span>
+              <input
+                type="number" step="0.0001" min="0" required
+                value={policy.usdToEurRate}
+                onChange={(e) => setPolicy({ ...policy, usdToEurRate: e.target.value })}
               />
             </label>
             <button className="btn-primary" disabled={saving}>{saving ? 'Saving…' : 'Save policy'}</button>

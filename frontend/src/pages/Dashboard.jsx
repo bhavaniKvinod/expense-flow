@@ -32,9 +32,13 @@ export default function Dashboard() {
       <div className="page-header">
         <div>
           <h1>Welcome, {user.name.split(' ')[0]}</h1>
-          <div className="subtitle">Here's where your expenses stand today.</div>
+          <div className="subtitle">
+            Here's where your expenses stand today.
+          </div>
         </div>
-        <Link className="btn btn-primary" to="/reports">New / view reports</Link>
+        <Link className="btn btn-primary" to="/reports">
+          New / view reports
+        </Link>
       </div>
 
       {error && <div className="alert alert-error">{error}</div>}
@@ -45,13 +49,27 @@ export default function Dashboard() {
           {isManager && (
             <div className="card">
               <h2>Needs your attention</h2>
-              <div className="grid cols-3">
-                <Stat value={data.awaitingMyApproval} label="Awaiting my approval" />
-                {isAdmin && <Stat value={data.awaitingReimbursement} label="Awaiting reimbursement" />}
+              <div className="grid cols-2">
+                <Stat
+                  value={data.awaitingMyApproval}
+                  label="Awaiting my approval"
+                />
+                {isAdmin && (
+                  <Stat
+                    value={data.awaitingReimbursement}
+                    label="Awaiting reimbursement"
+                  />
+                )}
               </div>
               <div className="btn-row" style={{ marginTop: 16 }}>
-                <Link className="btn" to="/approvals">Go to approvals</Link>
-                {isAdmin && <Link className="btn" to="/reimbursements">Go to reimbursements</Link>}
+                <Link className="btn" to="/approvals">
+                  Go to approvals
+                </Link>
+                {isAdmin && (
+                  <Link className="btn" to="/reimbursements">
+                    Go to reimbursements
+                  </Link>
+                )}
               </div>
             </div>
           )}

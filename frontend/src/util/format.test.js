@@ -8,6 +8,10 @@ describe('money', () => {
   it('defaults to USD and treats null as zero', () => {
     expect(money(null)).toBe('$0.00')
   })
+
+  it('formats EUR amounts', () => {
+    expect(money(1234.5, 'EUR')).toBe('€1,234.50')
+  })
 })
 
 describe('dateOnly', () => {

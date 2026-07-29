@@ -31,6 +31,7 @@ public class PolicyController {
 
     private PolicyDtos.PolicyResponse toResponse(PolicyConfig c) {
         return new PolicyDtos.PolicyResponse(
-                c.getReceiptThreshold(), c.getTotalReportCap(), c.getMaxExpenseAgeDays(), c.getUsdToInrRate());
+                c.getReceiptThreshold(), c.getTotalReportCap(), c.getMaxExpenseAgeDays(),
+                c.getUsdToInrRate(), c.getUsdToEurRate());
     }
 }

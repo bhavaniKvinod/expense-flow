@@ -33,6 +33,13 @@ public class PolicyConfig {
     @Column(name = "usd_to_inr_rate", nullable = false, precision = 12, scale = 4)
     private BigDecimal usdToInrRate;
 
+    /**
+     * Fixed conversion rate used to normalise non-USD line items (EUR) to USD for
+     * report totals and policy checks. E.g. 0.9200 means 1 USD = 0.92 EUR.
+     */
+    @Column(name = "usd_to_eur_rate", nullable = false, precision = 12, scale = 4)
+    private BigDecimal usdToEurRate;
+
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
@@ -47,4 +54,7 @@ public class PolicyConfig {
 
     public BigDecimal getUsdToInrRate() { return usdToInrRate; }
     public void setUsdToInrRate(BigDecimal usdToInrRate) { this.usdToInrRate = usdToInrRate; }
+
+    public BigDecimal getUsdToEurRate() { return usdToEurRate; }
+    public void setUsdToEurRate(BigDecimal usdToEurRate) { this.usdToEurRate = usdToEurRate; }
 }

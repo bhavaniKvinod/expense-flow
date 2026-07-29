@@ -54,9 +54,9 @@ public class ExpenseReport {
     private List<ExpenseLineItem> lineItems = new ArrayList<>();
 
     /** Recomputes {@link #totalAmount} as the USD-equivalent sum of all line items. */
-    public void recomputeTotal(BigDecimal usdToInrRate) {
+    public void recomputeTotal(BigDecimal usdToInrRate, BigDecimal usdToEurRate) {
         this.totalAmount = lineItems.stream()
-                .map(li -> CurrencyConverter.toUsd(li.getAmount(), li.getCurrency(), usdToInrRate))
+                .map(li -> CurrencyConverter.toUsd(li.getAmount(), li.getCurrency(), usdToInrRate, usdToEurRate))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 

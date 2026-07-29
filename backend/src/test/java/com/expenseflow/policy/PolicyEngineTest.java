@@ -30,6 +30,7 @@ class PolicyEngineTest {
         c.setTotalReportCap(new BigDecimal("5000.00"));
         c.setMaxExpenseAgeDays(90);
         c.setUsdToInrRate(new BigDecimal("83.0000"));
+        c.setUsdToEurRate(new BigDecimal("0.9200"));
         return c;
     }
 
@@ -154,6 +155,33 @@ class PolicyEngineTest {
         ExpenseReport report = reportWith(
                 item(TODAY.minusDays(1), "3000.00", Currency.USD, "Vendor A", true),
                 item(TODAY.minusDays(1), "166100.00", Currency.INR, "Vendor B", true));
+        assertThat(engine.validate(report, config()))
+                .extracting(PolicyViolation::rule).contains(PolicyEngine.RULE_TOTAL_CAP);
+    }
+
+    @Test
+    void eurItemIsConvertedToUsdForReceiptCheck() {
+        // 0.92 EUR == 1 USD; 30 EUR ~= $32.61, over the $25 threshold -> receipt required.
+        ExpenseReport report = reportWith(
+                item(TODAY.minusDays(1), "30.00", Currency.EUR, "Paris Cafe", false));
+        assertThat(engine.validate(report, config()))
+                .extracting(PolicyViolation::rule).contains(PolicyEngine.RULE_RECEIPT_REQUIRED);
+    }
+
+    @Test
+    void eurItemBelowUsdEquivalentThresholdNeedsNoReceipt() {
+        // 20 EUR ~= $21.74, under the $25 threshold.
+        ExpenseReport report = reportWith(
+                item(TODAY.minusDays(1), "20.00", Currency.EUR, "Paris Cafe", false));
+        assertThat(engine.validate(report, config())).isEmpty();
+    }
+
+    @Test
+    void mixedEurCurrencyTotalIsConvertedToUsdForCapCheck() {
+        // $3000 USD + 1840 EUR (~= $2000 USD) => ~$5000 total, at the cap; push over with one more euro.
+        ExpenseReport report = reportWith(
+                item(TODAY.minusDays(1), "3000.00", Currency.USD, "Vendor A", true),
+                item(TODAY.minusDays(1), "1841.00", Currency.EUR, "Vendor B", true));
         assertThat(engine.validate(report, config()))
                 .extracting(PolicyViolation::rule).contains(PolicyEngine.RULE_TOTAL_CAP);
     }

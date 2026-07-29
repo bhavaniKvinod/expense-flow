@@ -40,6 +40,7 @@ public class PolicyConfigService {
         config.setTotalReportCap(request.totalReportCap());
         config.setMaxExpenseAgeDays(request.maxExpenseAgeDays());
         config.setUsdToInrRate(request.usdToInrRate());
+        config.setUsdToEurRate(request.usdToEurRate());
         return repository.save(config);
     }
 

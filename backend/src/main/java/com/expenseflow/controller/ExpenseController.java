@@ -1,5 +1,6 @@
 package com.expenseflow.controller;
 
+import com.expenseflow.domain.ExpenseStatus;
 import com.expenseflow.dto.ExpenseDtos;
 import com.expenseflow.dto.PageResponse;
 import com.expenseflow.entity.ExpenseReport;
@@ -35,9 +36,10 @@ public class ExpenseController {
 
     @GetMapping("/api/reports")
     public PageResponse<ExpenseDtos.ReportSummary> myReports(@RequestParam(required = false) Integer page,
-                                                              @RequestParam(required = false) Integer size) {
+                                                             @RequestParam(required = false) Integer size,
+                                                             @RequestParam(required = false) ExpenseStatus status) {
         User me = currentUser.require();
-        return PageResponse.from(reportService.listMine(me, PagingSupport.of(page, size)));
+        return PageResponse.from(reportService.listMine(me, status, PagingSupport.of(page, size)));
     }
 
     @PostMapping("/api/reports")

@@ -13,7 +13,10 @@ import org.springframework.test.web.servlet.MvcResult;
 
 import java.time.LocalDate;
 
+import static org.hamcrest.Matchers.everyItem;
+import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -152,5 +155,34 @@ class ExpenseWorkflowIntegrationTest {
     void unauthenticatedRequestIsRejected() throws Exception {
         mockMvc.perform(get("/api/reports"))
                 .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void myReportsCanBeFilteredByStatus() throws Exception {
+        String employee = login("dev@expenseflow.test");
+
+        // One report we submit (-> SUBMITTED) and one we leave as a DRAFT.
+        long submittedId = createReportWithValidItem(employee);
+        mockMvc.perform(post("/api/reports/" + submittedId + "/submit")
+                        .header("Authorization", "Bearer " + employee))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status", is("SUBMITTED")));
+
+        long draftId = createReportWithValidItem(employee);
+
+        // Filtering by DRAFT returns only drafts, and includes ours (not the submitted one).
+        mockMvc.perform(get("/api/reports").param("status", "DRAFT").param("size", "100")
+                        .header("Authorization", "Bearer " + employee))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content[*].status", everyItem(is("DRAFT"))))
+                .andExpect(jsonPath("$.content[*].id", hasItem((int) draftId)))
+                .andExpect(jsonPath("$.content[*].id", not(hasItem((int) submittedId))));
+
+        // Filtering by SUBMITTED returns only submitted reports, including ours.
+        mockMvc.perform(get("/api/reports").param("status", "SUBMITTED").param("size", "100")
+                        .header("Authorization", "Bearer " + employee))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content[*].status", everyItem(is("SUBMITTED"))))
+                .andExpect(jsonPath("$.content[*].id", hasItem((int) submittedId)));
     }
 }

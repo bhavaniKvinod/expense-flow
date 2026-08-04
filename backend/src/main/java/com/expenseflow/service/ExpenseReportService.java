@@ -47,8 +47,11 @@ public class ExpenseReportService {
     // ---- Reads ----
 
     @Transactional(readOnly = true)
-    public Page<ReportSummary> listMine(User me, Pageable pageable) {
-        return reportRepository.findSummariesByEmployeeId(me.getId(), pageable).map(Mappers::toReportSummary);
+    public Page<ReportSummary> listMine(User me, ExpenseStatus status, Pageable pageable) {
+        Page<com.expenseflow.repository.ReportSummaryView> page = (status == null)
+                ? reportRepository.findSummariesByEmployeeId(me.getId(), pageable)
+                : reportRepository.findSummariesByEmployeeIdAndStatus(me.getId(), status, pageable);
+        return page.map(Mappers::toReportSummary);
     }
 
     @Transactional(readOnly = true)

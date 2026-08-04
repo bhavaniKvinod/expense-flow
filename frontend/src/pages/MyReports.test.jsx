@@ -9,7 +9,8 @@ import client from '../api/client'
 jest.mock('../api/client', () => ({
   __esModule: true,
   default: { get: jest.fn(), post: jest.fn() },
-  errorMessage: (err) => err?.response?.data?.message || err?.message || 'Request failed',
+  errorMessage: (err) =>
+    err?.response?.data?.message || err?.message || 'Request failed',
 }))
 
 // react-router's useNavigate needs to resolve; spy on it to assert redirects.
@@ -21,7 +22,9 @@ jest.mock('react-router-dom', () => ({
 
 function renderPage() {
   return render(
-    <MemoryRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+    <MemoryRouter
+      future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
+    >
       <MyReports />
     </MemoryRouter>,
   )
@@ -36,8 +39,22 @@ describe('MyReports', () => {
     client.get.mockResolvedValue({
       data: {
         content: [
-          { id: 1, title: 'Client dinner', status: 'SUBMITTED', lineItemCount: 3, totalAmount: 120.5, submittedAt: '2026-07-20T10:00:00Z' },
-          { id: 2, title: 'Conference travel', status: 'DRAFT', lineItemCount: 1, totalAmount: 800, submittedAt: null },
+          {
+            id: 1,
+            title: 'Client dinner',
+            status: 'SUBMITTED',
+            lineItemCount: 3,
+            totalAmount: 120.5,
+            submittedAt: '2026-07-20T10:00:00Z',
+          },
+          {
+            id: 2,
+            title: 'Conference travel',
+            status: 'DRAFT',
+            lineItemCount: 1,
+            totalAmount: 800,
+            submittedAt: null,
+          },
         ],
         page: 0,
         totalPages: 1,
@@ -53,15 +70,63 @@ describe('MyReports', () => {
   })
 
   it('shows the empty state when there are no reports', async () => {
-    client.get.mockResolvedValue({ data: { content: [], page: 0, totalPages: 0 } })
+    client.get.mockResolvedValue({
+      data: { content: [], page: 0, totalPages: 0 },
+    })
 
     renderPage()
 
     expect(await screen.findByText(/No reports yet/i)).toBeInTheDocument()
   })
 
+  it('refetches with the status param when a filter pill is clicked', async () => {
+    client.get.mockResolvedValue({
+      data: { content: [], page: 0, totalPages: 0 },
+    })
+
+    renderPage()
+    await screen.findByText(/No reports yet/i)
+
+    // Initial load carries no status filter.
+    expect(client.get).toHaveBeenCalledWith('/reports', { params: { page: 0 } })
+
+    await userEvent.click(screen.getByRole('button', { name: 'Rejected' }))
+
+    await waitFor(() => {
+      expect(client.get).toHaveBeenCalledWith('/reports', {
+        params: { page: 0, status: 'REJECTED' },
+      })
+    })
+  })
+
+  it('shows a filter-specific empty state with a reset action', async () => {
+    client.get.mockResolvedValue({
+      data: { content: [], page: 0, totalPages: 0 },
+    })
+
+    renderPage()
+    await screen.findByText(/No reports yet/i)
+
+    await userEvent.click(screen.getByRole('button', { name: 'Cancelled' }))
+
+    // Distinct message for "filter matched nothing" vs. "no reports at all".
+    expect(await screen.findByText(/No/)).toBeInTheDocument()
+    const reset = await screen.findByRole('button', {
+      name: /Show all reports/i,
+    })
+    await userEvent.click(reset)
+
+    await waitFor(() => {
+      expect(client.get).toHaveBeenLastCalledWith('/reports', {
+        params: { page: 0 },
+      })
+    })
+  })
+
   it('surfaces an error message when the fetch fails', async () => {
-    client.get.mockRejectedValue({ response: { data: { message: 'Server exploded' } } })
+    client.get.mockRejectedValue({
+      response: { data: { message: 'Server exploded' } },
+    })
 
     renderPage()
 
@@ -69,7 +134,9 @@ describe('MyReports', () => {
   })
 
   it('creates a report and navigates to its editor', async () => {
-    client.get.mockResolvedValue({ data: { content: [], page: 0, totalPages: 0 } })
+    client.get.mockResolvedValue({
+      data: { content: [], page: 0, totalPages: 0 },
+    })
     client.post.mockResolvedValue({ data: { id: 42 } })
 
     renderPage()
@@ -78,7 +145,10 @@ describe('MyReports', () => {
     await userEvent.click(screen.getByRole('button', { name: /New report/i }))
 
     await waitFor(() => {
-      expect(client.post).toHaveBeenCalledWith('/reports', { title: 'New expense report', purpose: '' })
+      expect(client.post).toHaveBeenCalledWith('/reports', {
+        title: 'New expense report',
+        purpose: '',
+      })
       expect(mockNavigate).toHaveBeenCalledWith('/reports/42/edit')
     })
   })

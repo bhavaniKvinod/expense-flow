@@ -38,6 +38,23 @@ public interface ExpenseReportRepository extends JpaRepository<ExpenseReport, Lo
             """)
     Page<ReportSummaryView> findSummariesByEmployeeId(@Param("employeeId") Long employeeId, Pageable pageable);
 
+    /**
+     * Owner-scoped variant of {@link #findSummariesByEmployeeId} that also filters by a single
+     * status, powering the "My Reports" status filter. Kept as its own query (rather than a
+     * nullable-status conditional) so each path stays a simple, index-friendly statement.
+     */
+    @Query("""
+            SELECT r.id AS id, r.employee.name AS employeeName, r.title AS title, r.status AS status,
+                   r.totalAmount AS totalAmount, r.submittedAt AS submittedAt, r.createdAt AS createdAt,
+                   SIZE(r.lineItems) AS lineItemCount
+            FROM ExpenseReport r
+            WHERE r.employee.id = :employeeId AND r.status = :status
+            ORDER BY r.createdAt DESC
+            """)
+    Page<ReportSummaryView> findSummariesByEmployeeIdAndStatus(@Param("employeeId") Long employeeId,
+                                                               @Param("status") ExpenseStatus status,
+                                                               Pageable pageable);
+
     @Query("""
             SELECT r.id AS id, r.employee.name AS employeeName, r.title AS title, r.status AS status,
                    r.totalAmount AS totalAmount, r.submittedAt AS submittedAt, r.createdAt AS createdAt,
